@@ -6,7 +6,7 @@ import java.util.Random;
 import android.graphics.Path;
 import android.util.Log;
 
-public class MaggLogic {
+public class Logic {
 	
 	static Random rn;
 	

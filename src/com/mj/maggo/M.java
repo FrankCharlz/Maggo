@@ -2,6 +2,7 @@ package com.mj.maggo;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 public class M {
 	
@@ -60,6 +61,10 @@ public class M {
 
 	private static int makePoint(int x, int y) {
 		return 1000*x + y;
+	}
+	
+	public static void  logger(Object o) {
+		Log.e("MJ", o.toString());
 	}
 	
 }

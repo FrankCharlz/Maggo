@@ -75,6 +75,11 @@ public class Line {
 		return valid;
 	}
 	
+	@Override
+	public String toString() {
+		return pointA+" to "+pointB;
+	}
+	
 	
 
 }

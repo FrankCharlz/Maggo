@@ -2,14 +2,12 @@ package com.mj.maggo;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Path.FillType;
-import android.graphics.Path;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,31 +15,34 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.TextView;
 
-public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback {
+public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.Callback {
 
 	private static final int MENU_SETTINGS = 0;
 	public static final int PLAYER_AI = 1;
 	public static final int PLAYER_HUMAN = 0;
-	TextView tv;
-	SurfaceView surface;
+	private TextView tv;
+	private SurfaceView surface;
 	private SurfaceHolder holder;
 	private Thread t;
 	public ArrayList<Dot> dots;
-	private int current_player=0;
-	public ArrayList<Integer> occupiable, occupied, occupiedx, reachable;
 
-	Paint board_color, dot_1_color, dot_2_color, colors[], o_color, r_color;
+	//very important for storage
+	private int current_player=0;
+	private  ArrayList<Integer> occupiable, occupied, occupiedx, reachable;
+	private int[] wazi, zake, zangu;
+	private int zangu_counter=0, zake_counter=0;
+
+	private Paint board_color, dot_1_color, dot_2_color, colors[], o_color, r_color;
 	public boolean touched, nichore;
 	private int sekos = 0;
 	private float radius = 28f; 
-	private float radius_moving = 37f;
+	private float radius_moving = 36f;
 	protected boolean moving = false;
-	private float dpx, dpy;
 
 	//used for drawing moving dot...
+	private float dpx, dpy;
 	private float px, py;
 	private int currentDotId;
 	private Line route;
@@ -70,7 +71,7 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 		occupiedx = new ArrayList<Integer>(3);
 		reachable = new ArrayList<Integer>();
 
-		MaggLogic.initOccupiableList(occupiable);
+		Logic.initOccupiableList(occupiable);
 
 		this.init();
 
@@ -107,7 +108,7 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 						} //skip currentDot in the main stream.. then draw a single . get only its color ;
 						c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
 					}
-					
+
 					if (current_player == PLAYER_AI) {
 						//c.drawPath(route, o_color);
 					}
@@ -154,12 +155,13 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 			//color = colors[current]
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN: 
-				px = MaggLogic.standardize(event.getX());
-				py = MaggLogic.standardize(event.getY());
+				px = Logic.standardize(event.getX());
+				py = Logic.standardize(event.getY());
 				id = (int)(1000*px + py);
 
 				if (sekos<6) {
-					if (px>0 && py>0) {
+					//remember sekos start at 0;
+					if (current_player == PLAYER_HUMAN && px>0 && py>0) {
 						//still adding dots...
 						if(occupiable.contains(id)) {
 							dots.add(new Dot(sekos, px, py, id, colors[current_player]));
@@ -168,40 +170,46 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 							sekos++;
 							togglePlayer();
 
-							if (current_player == PLAYER_AI) { 
-								//engine's turn
-								try {
-									Thread.sleep(60);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-								int bp = MaggLogic.bestPlaceToPut(occupied, occupiedx, occupiable);
-								dots.add(new Dot(sekos, bp/1000, bp%1000, bp, colors[current_player]));
-								occupiable.remove(Integer.valueOf(bp));
-								occupiedx.add(Integer.valueOf(bp));
-								sekos++;
-								togglePlayer();
-							}
-
 							tv.setText(px+":"+py+" sekos="+sekos);
 						} else {tv.setText("Position is ocupied");}
 					}
+					
+					if (current_player == PLAYER_AI) { 
+						//engine's turn
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						int bp = Logic.bestPlaceToPut(occupied, occupiedx, occupiable);
+						dots.add(new Dot(sekos, bp/1000, bp%1000, bp, colors[current_player]));
+						occupiable.remove(Integer.valueOf(bp));
+						occupiedx.add(Integer.valueOf(bp));
+						sekos++;
+						togglePlayer();
+					}
+
+					if (sekos == 6) {
+						//testing that one time that six is reached
+						M.logger("Sixth dot");
+					}
+
 				}
 
 				if ( sekos==6 ) {
 					moving=true;
-					
+
 					if (current_player == PLAYER_AI) {
-						 route = MaggLogic.calculateBestMove(route, occupiable, occupiedx, occupied);
+						AIplay();
 
 					}
 					else {
 						currentDotId = id;
-						MaggLogic.findNeighbours(currentDotId, occupiable, reachable);
-						
+						Logic.findNeighbours(currentDotId, occupiable, reachable);
+
 					}
 
-					
+
 
 
 				}
@@ -219,8 +227,8 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 			case MotionEvent.ACTION_UP:
 				if (moving) {
 					moving=false;
-					dpx = MaggLogic.standardize(event.getX());
-					dpy = MaggLogic.standardize(event.getY());
+					dpx = Logic.standardize(event.getX());
+					dpy = Logic.standardize(event.getY());
 					uid = (int)(1000*dpx + dpy);
 
 
@@ -238,16 +246,8 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 							}
 						}
 
-						if (current_player == PLAYER_AI) {
-							occupiedx.remove(Integer.valueOf(id));
-							occupiedx.add(Integer.valueOf(uid));
-							Log.e("mj", "Size of occx : "+occupiedx.size());
-							Log.e("mj", occupiedx.toString());
-						} else {
-							occupied.remove(Integer.valueOf(id));
-							occupied.add(Integer.valueOf(uid));
-							Log.e("mj", "Size of occ : "+occupiedx.size());
-						}
+						occupied.remove(Integer.valueOf(id));
+						occupied.add(Integer.valueOf(uid));
 
 						occupiable.remove(Integer.valueOf(uid));
 						occupiable.add(Integer.valueOf(id));
@@ -255,7 +255,7 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 					}
 
 					//takes three dots tests if win.....
-					if( MaggLogic.checkWinner(occupied, occupiedx, current_player)) {
+					if( Logic.checkWinner(occupied, occupiedx, current_player)) {
 						tv.setText(players[current_player]+" wins.");
 					}
 
@@ -286,6 +286,29 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 		super.onPause();
 	}
 
+	public void AIplay() {
+		route = Logic.calculateBestMove(route, occupiable, occupiedx, occupied);
+		M.logger(route);
+
+		for (Dot d : dots) {
+			if (d.getId()==route.getStartPoint()) {
+				d.setX(route.getEndPoint()/1000);
+				d.setY(route.getEndPoint()%1000);
+				d.setId(route.getEndPoint());
+				break;
+			}
+		}
+
+		occupiedx.remove(route.getStartPoint());
+		occupiedx.add(route.getEndPoint());
+
+		occupiable.remove(route.getEndPoint());
+		occupiable.add(route.getStartPoint());
+
+
+	}
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -302,7 +325,7 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 		case MENU_SETTINGS:
 			dots.clear();
 			occupiable.clear();
-			MaggLogic.initOccupiableList(occupiable);
+			Logic.initOccupiableList(occupiable);
 			occupied.clear();
 			occupiedx.clear();
 			moving = false;
@@ -316,13 +339,11 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 
 
 	public void togglePlayer() {
-		this.current_player = (this.current_player+1)%2;
+		current_player = (current_player == PLAYER_AI) ? PLAYER_HUMAN : PLAYER_AI;
 		tv.setText(players[current_player]+"'s turn");
-		Log.e("MJ", "Current player : "+current_player);
-
 	}
 
-	public Dot getDot(int id) {
+	public Dot getDotById(int id) {
 		int i = 0;
 		for (Dot dot : dots) {
 			if (dot.getId() == id) {
@@ -364,9 +385,20 @@ public class Maggo extends Activity implements Runnable, SurfaceHolder.Callback 
 		colors = new Paint[2];
 		colors[0] = dot_1_color;
 		colors[1] = dot_2_color;
-		
+
 		route = new Line();
-		
+
+		//initializing arrays
+		wazi =  new int[3];
+		zake = new int[3];
+		zangu = new int[3];
+		for (int i = 0; i<3; i++) {
+			wazi[i] = 0;
+			zake[i] = 0;
+			zangu[i] = 0;
+
+		}
+
 	}
 
 
