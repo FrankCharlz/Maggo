@@ -37,8 +37,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	public boolean touched, nichore;
 	private int sekos = 0;
 	private int dots_iterator = 0;
-	private float radius = 28f; 
-	private float radius_moving = 36f;
 	protected boolean moving = false;
 
 	//used for drawing moving dot...
@@ -48,6 +46,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	private Line route;
 
 	public String[] players = { "Mago", "AI" };
+	private boolean movingDot;
+	private int movingDotIndex;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,26 +88,44 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				M.choraBodi(c, board_color);
 
 				if (!moving) {
-					
+
 					for (dots_iterator = 0; dots_iterator < sekos; dots_iterator++) {
-						Logic.drawDot(c, dots[dots_iterator], radius);
+						Logic.drawDot(c, dots[dots_iterator]);
 					}
 				}
 
 				if (moving) {
 
 					for (int x : reachable) {
-						c.drawCircle( x/1000, x%1000, radius_moving, r_color);
+						c.drawCircle( x/1000, x%1000, Dot.RADIUS_BIG, r_color);
 					}
 
 					for (Dot dot : dots) {
 						if(dot.isAt(currentDotId)) {
-							Logic.drawDot(c, dot, radius_moving);
+							Logic.drawDotMoving(c, dot, px, py);
 							continue;
 						} //skip currentDot in the main stream.. then draw a single . get only its color ;
-						Logic.drawDot(c, dot, radius);
+						Logic.drawDot(c, dot);
 					}
 
+				}
+
+				if (movingDot) {
+					dots[movingDotIndex].setX(dpx);
+					dots[movingDotIndex].setY(dpy);
+					dots[movingDotIndex].setRadius(Dot.RADIUS_BIG);
+
+					dpx += 7;//route.getSpeed(dpx);//speed depends on the route from 7 to 4.3
+					dpy = route.getY(dpx);
+
+					if (dpx >= route.getEndPoint()/1000) { 
+						dots[movingDotIndex].setRadius(Dot.RADIUS);
+						dots[movingDotIndex].setPosition(route.getEndPoint());
+						togglePlayer();
+						M.logger("Was moving dot index : "+ movingDotIndex);
+						M.logger("Done pretty moving");
+						movingDot = false;
+					}
 				}
 
 				holder.unlockCanvasAndPost(c);
@@ -121,6 +139,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		}
 
 	}
+
+
 
 
 	@Override
@@ -169,7 +189,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 							tv.setText(px+":"+py+" sekos="+sekos);
 						} else {tv.setText("Position is ocupied");}
 					}
-					
+
 					if (current_player == PLAYER_AI) { 
 						int bp = Logic.bestPlaceToPut(occupied, occupiedx, occupiable);
 						dots[sekos] = new Dot(bp, colors[current_player], PLAYER_AI);
@@ -187,12 +207,12 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if ( sekos==6 && current_player == PLAYER_HUMAN) {
-						moving=true;
-						currentDotId = id;
-						Logic.findNeighbours(currentDotId, occupiable, reachable);
+					moving=true;
+					currentDotId = id;
+					Logic.findNeighbours(currentDotId, occupiable, reachable);
 
 				}
-				
+
 				//end of case motion DOWN
 				break;
 
@@ -228,7 +248,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 						occupiable.remove(Integer.valueOf(uid));
 						occupiable.add(Integer.valueOf(id));
-						
+
 						//let the AI play
 						togglePlayer();
 						AIplay();
@@ -264,24 +284,26 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		}
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 	}
 
 	public void AIplay() {
-		
+
 		route = Logic.calculateBestMove(route, occupiable, occupiedx, occupied);
 		M.logger(route);
 
+		int index = -1;
 		for (Dot d : dots) {
+			index++;
 			if ( d.getPlayerId() == PLAYER_HUMAN ) {
 				continue;
 			}
-			
+
 			if (d.isAt(route.getStartPoint())) {
-				d.setPosition((route.getEndPoint()));
+				moveDotOverLine(d, route, index);
 				break;
 			}
 		}
@@ -291,11 +313,16 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 		occupiable.remove(route.getEndPoint());
 		occupiable.add(route.getStartPoint());
-		
-		M.logger("AI has played");
-		togglePlayer();
-		
 
+		M.logger("AI has finished playeing");
+	}
+
+
+	private void moveDotOverLine(Dot dot, Line path, int index) {
+		dpx = dot.getX();
+		dpy = dot.getY();
+		movingDotIndex = index;
+		movingDot = true;
 	}
 
 
@@ -329,7 +356,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	public void togglePlayer() {
 		current_player = (current_player == PLAYER_AI) ? PLAYER_HUMAN : PLAYER_AI;
-		tv.setText(players[current_player]+"'s turn");
+		//tv.setText(players[current_player]+"'s turn");
 	}
 
 	public Dot getDotById(int id) {

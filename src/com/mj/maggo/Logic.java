@@ -24,6 +24,16 @@ public class Logic {
 		return touch;
 
 	}
+	
+	public static void drawDot(Canvas c, Dot dot) {
+		c.drawCircle(dot.getX(), dot.getY(), dot.getRadius(), dot.getColor());
+	}
+
+	public static void drawDotMoving(Canvas c, Dot dot, float px, float py) {
+		c.drawCircle(px, py, Dot.RADIUS_BIG, dot.getColor());
+		
+	}
+
 
 	public static void initOccupiableList(ArrayList<Integer> occupiable) {
 		occupiable.add(M.A); occupiable.add(M.B); occupiable.add(M.C);
@@ -167,9 +177,6 @@ public class Logic {
 		int start = occupiedx.get(rn.nextInt(3));
 		int end = occupiable.get(rn.nextInt(3));
 	
-		M.logger(occupiedx);
-		M.logger(occupiable);
-		
 		path.reset();
 		path.setStartPoint(start);
 		path.setEndPoint(end);
@@ -178,10 +185,7 @@ public class Logic {
 		return path;
 	}
 
-	public static void drawDot(Canvas c, Dot dot, float radius) {
-		c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
-	}
-
+	
 
 
 }

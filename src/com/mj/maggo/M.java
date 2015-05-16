@@ -40,8 +40,7 @@ public class M {
 	public static final int CY = Y2;
 	public static final int SUM_OF_COORDS = 3*(START_XY + INTERVAL);
 	
-	
-	
+
 
 	public static void choraBodi(Canvas c, Paint p1) {
 		

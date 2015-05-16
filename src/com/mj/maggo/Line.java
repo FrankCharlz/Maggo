@@ -79,6 +79,10 @@ public class Line {
 	public String toString() {
 		return pointA+" to "+pointB;
 	}
+
+	public float getSpeed(float dpx) {
+		return (float) (1.84*Math.exp((dpx-startX)/(endX - startX)));
+	}
 	
 	
 
