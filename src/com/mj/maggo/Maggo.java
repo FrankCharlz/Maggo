@@ -26,17 +26,17 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	private SurfaceView surface;
 	private SurfaceHolder holder;
 	private Thread t;
-	public ArrayList<Dot> dots;
+	private Dot[] dots = new Dot[6];
 
 	//very important for storage
 	private int current_player=0;
 	private  ArrayList<Integer> occupiable, occupied, occupiedx, reachable;
 	private int[] wazi, zake, zangu;
-	private int zangu_counter=0, zake_counter=0;
 
 	private Paint board_color, dot_1_color, dot_2_color, colors[], o_color, r_color;
 	public boolean touched, nichore;
 	private int sekos = 0;
+	private int dots_iterator = 0;
 	private float radius = 28f; 
 	private float radius_moving = 36f;
 	protected boolean moving = false;
@@ -64,8 +64,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 		t = new Thread(this);
 
-		dots = new ArrayList<Dot>(6);
-
 		occupiable = new ArrayList<Integer>(9);
 		occupied = new ArrayList<Integer>(3);
 		occupiedx = new ArrayList<Integer>(3);
@@ -90,8 +88,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				M.choraBodi(c, board_color);
 
 				if (!moving) {
-					for (Dot dot : dots) {
-						c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
+					
+					for (dots_iterator = 0; dots_iterator < sekos; dots_iterator++) {
+						c.drawCircle(dots[dots_iterator].getX(), dots[dots_iterator].getY(), 
+								radius, dots[dots_iterator].getColor());
 					}
 				}
 
@@ -109,9 +109,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 						c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
 					}
 
-					if (current_player == PLAYER_AI) {
-						//c.drawPath(route, o_color);
-					}
 				}
 
 				holder.unlockCanvasAndPost(c);
@@ -164,7 +161,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					if (current_player == PLAYER_HUMAN && px>0 && py>0) {
 						//still adding dots...
 						if(occupiable.contains(id)) {
-							dots.add(new Dot(sekos, px, py, id, colors[current_player]));
+							dots[sekos] = new Dot(sekos, px, py, id, colors[current_player]);
 							occupiable.remove(Integer.valueOf(id));
 							occupied.add(Integer.valueOf(id));
 							sekos++;
@@ -175,14 +172,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					}
 					
 					if (current_player == PLAYER_AI) { 
-						//engine's turn
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 						int bp = Logic.bestPlaceToPut(occupied, occupiedx, occupiable);
-						dots.add(new Dot(sekos, bp/1000, bp%1000, bp, colors[current_player]));
+						dots[sekos] = new Dot(sekos, bp/1000, bp%1000, bp, colors[current_player]);
 						occupiable.remove(Integer.valueOf(bp));
 						occupiedx.add(Integer.valueOf(bp));
 						sekos++;
@@ -197,23 +188,20 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if ( sekos==6 ) {
-					moving=true;
-
-					if (current_player == PLAYER_AI) {
-						AIplay();
-
-					}
-					else {
+					
+					if (current_player == PLAYER_HUMAN) {
+						moving=true;
 						currentDotId = id;
 						Logic.findNeighbours(currentDotId, occupiable, reachable);
 
 					}
-
-
-
+					
+					if (current_player == PLAYER_AI) {
+						AIplay();
+					}
 
 				}
-
+				
 				//end of case motion DOWN
 				break;
 
@@ -287,6 +275,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	}
 
 	public void AIplay() {
+		
 		route = Logic.calculateBestMove(route, occupiable, occupiedx, occupied);
 		M.logger(route);
 
@@ -323,7 +312,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		switch (item.getItemId()) {
 
 		case MENU_SETTINGS:
-			dots.clear();
 			occupiable.clear();
 			Logic.initOccupiableList(occupiable);
 			occupied.clear();
@@ -351,7 +339,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 			}
 			i++;
 		}
-		return dots.get(i);
+		return dots[i];
 	}
 
 

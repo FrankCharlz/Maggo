@@ -9,20 +9,20 @@ public class Line {
 	private boolean valid;
 	
 	public Line(int sp, int ep) {
-		startAt(sp);
-		endAt(ep);
+		setStartAt(sp);
+		setEndAt(ep);
 	}
 	
 	public Line() {
 	}
 
-	public void startAt(int sp) {
+	public void setStartAt(int sp) {
 		pointA = sp;
 		startX = sp/1000;
 		startY = sp%1000;
 	}
 	
-	public void  endAt(int ep) {
+	public void  setEndAt(int ep) {
 		pointB = ep;
 		endX = ep/1000;
 		endY = ep%1000;
@@ -63,12 +63,12 @@ public class Line {
 		return y_intercept;
 	}
 
-	public int getStartPoint() {
-		return pointA;
+	public Integer getStartPoint() {
+		return Integer.valueOf(pointA);
 	}
 
-	public int getEndPoint() {
-		return pointB;
+	public Integer getEndPoint() {
+		return Integer.valueOf(pointA);
 	}
 
 	public boolean isValid() {

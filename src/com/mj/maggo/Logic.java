@@ -167,8 +167,8 @@ public class Logic {
 		int end = occupiable.get(rn.nextInt(3));
 	
 		path.reset();
-		path.startAt(start);
-		path.endAt(end);
+		path.setStartAt(start);
+		path.setEndAt(end);
 		path.make();
 		
 		return path;
