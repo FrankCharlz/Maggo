@@ -90,8 +90,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				if (!moving) {
 					
 					for (dots_iterator = 0; dots_iterator < sekos; dots_iterator++) {
-						c.drawCircle(dots[dots_iterator].getX(), dots[dots_iterator].getY(), 
-								radius, dots[dots_iterator].getColor());
+						Logic.drawDot(c, dots[dots_iterator], radius);
 					}
 				}
 
@@ -102,11 +101,11 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					}
 
 					for (Dot dot : dots) {
-						if(dot.getId()==currentDotId) {
-							c.drawCircle(px, py, radius_moving, dot.getColor());
+						if(dot.isAt(currentDotId)) {
+							Logic.drawDot(c, dot, radius_moving);
 							continue;
 						} //skip currentDot in the main stream.. then draw a single . get only its color ;
-						c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
+						Logic.drawDot(c, dot, radius);
 					}
 
 				}
@@ -139,7 +138,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
+		nichore = false;
 
 	}
 
@@ -161,7 +160,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					if (current_player == PLAYER_HUMAN && px>0 && py>0) {
 						//still adding dots...
 						if(occupiable.contains(id)) {
-							dots[sekos] = new Dot(sekos, px, py, id, colors[current_player]);
+							dots[sekos] = new Dot(id, colors[current_player], PLAYER_HUMAN);
 							occupiable.remove(Integer.valueOf(id));
 							occupied.add(Integer.valueOf(id));
 							sekos++;
@@ -173,7 +172,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					
 					if (current_player == PLAYER_AI) { 
 						int bp = Logic.bestPlaceToPut(occupied, occupiedx, occupiable);
-						dots[sekos] = new Dot(sekos, bp/1000, bp%1000, bp, colors[current_player]);
+						dots[sekos] = new Dot(bp, colors[current_player], PLAYER_AI);
 						occupiable.remove(Integer.valueOf(bp));
 						occupiedx.add(Integer.valueOf(bp));
 						sekos++;
@@ -187,18 +186,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 				}
 
-				if ( sekos==6 ) {
-					
-					if (current_player == PLAYER_HUMAN) {
+				if ( sekos==6 && current_player == PLAYER_HUMAN) {
 						moving=true;
 						currentDotId = id;
 						Logic.findNeighbours(currentDotId, occupiable, reachable);
-
-					}
-					
-					if (current_player == PLAYER_AI) {
-						AIplay();
-					}
 
 				}
 				
@@ -226,10 +217,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 						//the current id..refer above... ehwn gets the loops changes its x,y coords & if for new pos..
 						//edits occupiables...
 						for (Dot d : dots) {
-							if (d.getId()==id) {
-								d.setX(dpx);
-								d.setY(dpy);
-								d.setId(uid);
+							if (d.isAt(id)) {
+								d.setPosition(uid);
 								break;
 							}
 						}
@@ -239,7 +228,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 						occupiable.remove(Integer.valueOf(uid));
 						occupiable.add(Integer.valueOf(id));
+						
+						//let the AI play
 						togglePlayer();
+						AIplay();
 					}
 
 					//takes three dots tests if win.....
@@ -253,8 +245,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				//end of case motion UP
 				break;
 
-
-
 			default:
 				break;
 			}
@@ -266,12 +256,18 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	@Override
 	protected void onPause() {
+		nichore = false;
 		try {
 			t.join(3000);//was 3000
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		super.onPause();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 	}
 
 	public void AIplay() {
@@ -280,10 +276,12 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		M.logger(route);
 
 		for (Dot d : dots) {
-			if (d.getId()==route.getStartPoint()) {
-				d.setX(route.getEndPoint()/1000);
-				d.setY(route.getEndPoint()%1000);
-				d.setId(route.getEndPoint());
+			if ( d.getPlayerId() == PLAYER_HUMAN ) {
+				continue;
+			}
+			
+			if (d.isAt(route.getStartPoint())) {
+				d.setPosition((route.getEndPoint()));
 				break;
 			}
 		}
@@ -293,7 +291,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 		occupiable.remove(route.getEndPoint());
 		occupiable.add(route.getStartPoint());
-
+		
+		M.logger("AI has played");
+		togglePlayer();
+		
 
 	}
 
@@ -334,7 +335,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	public Dot getDotById(int id) {
 		int i = 0;
 		for (Dot dot : dots) {
-			if (dot.getId() == id) {
+			if (dot.isAt(id)) {
 				break;
 			}
 			i++;

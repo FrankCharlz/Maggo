@@ -9,20 +9,20 @@ public class Line {
 	private boolean valid;
 	
 	public Line(int sp, int ep) {
-		setStartAt(sp);
-		setEndAt(ep);
+		setStartPoint(sp);
+		setEndPoint(ep);
 	}
 	
 	public Line() {
 	}
 
-	public void setStartAt(int sp) {
+	public void setStartPoint(int sp) {
 		pointA = sp;
 		startX = sp/1000;
 		startY = sp%1000;
 	}
 	
-	public void  setEndAt(int ep) {
+	public void  setEndPoint(int ep) {
 		pointB = ep;
 		endX = ep/1000;
 		endY = ep%1000;
@@ -68,7 +68,7 @@ public class Line {
 	}
 
 	public Integer getEndPoint() {
-		return Integer.valueOf(pointA);
+		return Integer.valueOf(pointB);
 	}
 
 	public boolean isValid() {

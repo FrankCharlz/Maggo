@@ -3,21 +3,17 @@ package com.mj.maggo;
 import android.graphics.Paint;
 
 public class Dot {
-	private int pos;
+	private int sekoNumber;
 	private float x;
 	private float y;
-	private int id;
+	private int position;
 	private int player_id;
 	private Paint color;
 	
-	public Dot(int pos, float x, float y, int id, Paint color) {
-		this.pos = pos;
-		this.x = x;
-		this.y = y;
-		this.id = id;
+	public Dot(int position, Paint color, int player_id) {
+		this.setPosition(position);
 		this.color = color;
-		
-		player_id = pos & 0x1;
+		this.player_id = player_id;
 		
 	}
 
@@ -45,20 +41,26 @@ public class Dot {
 		this.color = color;
 	}
 
-	public int getId() {
-		return id;
+	public int getPosition() {
+		return position;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setPosition(int pos) {
+		this.position = pos;
+		this.setX((int)pos/1000);
+		this.setY((int)pos%1000);
 	}
 
-	public int getPos() {
-		return pos;
+	public int getSekoNumber() {
+		return sekoNumber;
 	}
 	
 	public int getPlayerId() {
 		return player_id;
+	}
+	
+	public boolean isAt(int pos) {
+		return pos == position;
 	}
 
 }

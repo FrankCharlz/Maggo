@@ -3,6 +3,7 @@ package com.mj.maggo;
 import java.util.ArrayList;
 import java.util.Random;
 
+import android.graphics.Canvas;
 import android.graphics.Path;
 import android.util.Log;
 
@@ -166,12 +167,19 @@ public class Logic {
 		int start = occupiedx.get(rn.nextInt(3));
 		int end = occupiable.get(rn.nextInt(3));
 	
+		M.logger(occupiedx);
+		M.logger(occupiable);
+		
 		path.reset();
-		path.setStartAt(start);
-		path.setEndAt(end);
+		path.setStartPoint(start);
+		path.setEndPoint(end);
 		path.make();
 		
 		return path;
+	}
+
+	public static void drawDot(Canvas c, Dot dot, float radius) {
+		c.drawCircle(dot.getX(), dot.getY(), radius, dot.getColor());
 	}
 
 
