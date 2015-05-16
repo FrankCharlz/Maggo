@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="board_color">#230900</color>
+    <color name="dot_1_color">#10b28d</color>
+    <color name="dot_2_color">#f209d9</color>
+    
+</resources>
