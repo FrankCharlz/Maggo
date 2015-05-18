@@ -209,7 +209,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				if ( sekos==6 && current_player == PLAYER_HUMAN) {
 					moving=true;
 					currentDotId = id;
-					Logic.findNeighbours(currentDotId, occupiable, reachable);
+					Logic.findReachableNeighbours(currentDotId, occupiable, reachable);
 
 				}
 
@@ -404,16 +404,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 		route = new Line();
 
-		//initializing arrays
-		wazi =  new int[3];
-		zake = new int[3];
-		zangu = new int[3];
-		for (int i = 0; i<3; i++) {
-			wazi[i] = 0;
-			zake[i] = 0;
-			zangu[i] = 0;
-
-		}
+	
 
 	}
 

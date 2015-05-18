@@ -128,48 +128,17 @@ public class Logic {
 	}
 
 
-	public static void findNeighbours(int currentDotId, ArrayList<Integer> occupiable, ArrayList<Integer> reachable) {
+	public static void findReachableNeighbours(int node, ArrayList<Integer> occupiable, ArrayList<Integer> reachable) {
 
-		if (isMiddleSidePoint(currentDotId)) 
-		{
-			for (int item : occupiable){
-				if (inRangeX(item, currentDotId) ) {
-					reachable.add(item);
-
-				}
+		int[] neighbours = M.getNeighbours(node);
+		for (int x : neighbours ) {
+			if (occupiable.contains(Integer.valueOf(x))) {
+				reachable.add(Integer.valueOf(x));
 			}
 		}
-		else 
-		{
-			for (int item : occupiable){
-				if (inRange(item, currentDotId) ) {
-					reachable.add(item);
-
-				}
-			}
-
-
-		}
 
 	}
 
-	private static boolean isMiddleSidePoint(int point) {
-		return (point == M.B || point == M.D ||point == M.F ||point == M.F);
-	}
-
-	public static boolean inRange(int item, int point) {
-		int dx = Math.abs(item/1000 - point/1000);
-		int dy = Math.abs(item%1000 - point%1000);
-
-		return (dx == M.INTERVAL && dy <=M.INTERVAL) || (dy == M.INTERVAL && dx <=M.INTERVAL );
-	}
-
-	public static boolean inRangeX(int item, int point) {
-		int dx = Math.abs(item/1000 - point/1000);
-		int dy = Math.abs(item%1000 - point%1000);
-
-		return (dx == M.INTERVAL && dy ==  0 ) || (dy == M.INTERVAL && dx == 0 );
-	}
 
 	public static Line calculateBestMove(Line path, ArrayList<Integer> occupiable,
 			ArrayList<Integer> occupiedx, ArrayList<Integer> occupied) {
@@ -180,7 +149,7 @@ public class Logic {
 		path.reset();
 		path.setStartPoint(start);
 		path.setEndPoint(end);
-		path.make();
+		path.make(); 
 		
 		return path;
 	}
