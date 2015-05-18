@@ -118,7 +118,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					parameter+=4;
 					dots[movingDotIndex].setPosition(route.getPoint(parameter));
 
-					if (dots[movingDotIndex].getX() >= route.getEndPoint()/1000) { 
+					if (parameter >= M.INTERVAL) { 
 						dots[movingDotIndex].setRadius(Dot.RADIUS);
 						dots[movingDotIndex].setPosition(route.getEndPoint());
 						togglePlayer();
@@ -207,10 +207,14 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if ( sekos==6 && current_player == PLAYER_HUMAN) {
-					moving=true;
-					currentDotId = id;
-					Logic.findReachableNeighbours(currentDotId, occupiable, reachable);
-
+					if (occupied.contains(Integer.valueOf(id))) {
+						moving=true;
+						currentDotId = id;
+						Logic.findReachableNeighbours(currentDotId, occupiable, reachable);
+					}
+					else {
+						tv.setText("That is not yours");
+					}
 				}
 
 				//end of case motion DOWN
@@ -314,7 +318,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		occupiable.remove(route.getEndPoint());
 		occupiable.add(route.getStartPoint());
 
-		M.logger("AI has finished playeing");
+		M.logger("AI has finished playing");
 	}
 
 
@@ -323,7 +327,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		movingDotIndex = index;
 		parameter = 0;
 		movingDot = true;
-		
+
 	}
 
 

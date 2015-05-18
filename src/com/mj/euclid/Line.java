@@ -114,6 +114,7 @@ public class Line {
 		
 		else {
 			//add parameter to both x,y
+			if (endX < startX) parameter = -parameter;
 			return (startX+parameter)*1000 + (int)getY(startX+parameter);
 		}
 
