@@ -2,6 +2,9 @@ package com.mj.maggo;
 
 import java.util.ArrayList;
 
+import com.mj.euclid.Dot;
+import com.mj.euclid.Line;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -403,8 +406,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		colors[1] = dot_2_color;
 
 		route = new Line();
-
-	
 
 	}
 

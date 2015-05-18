@@ -1,4 +1,4 @@
-package com.mj.maggo;
+package com.mj.euclid;
 
 import android.graphics.Paint;
 

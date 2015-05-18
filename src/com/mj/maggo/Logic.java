@@ -3,6 +3,9 @@ package com.mj.maggo;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.mj.euclid.Dot;
+import com.mj.euclid.Line;
+
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.util.Log;

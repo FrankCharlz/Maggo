@@ -64,8 +64,6 @@ public class M {
 			
 	}
 
-
-
 	public static void choraBodi(Canvas c, Paint p1) {
 
 		c.drawLine(X1, Y1, X3 , Y1, p1);
