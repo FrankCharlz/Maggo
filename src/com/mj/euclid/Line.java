@@ -4,14 +4,17 @@ import com.mj.maggo.M;
 
 public class Line {
 
+	public static final int HORIZONTAL = 0xff2;
+	public static final int VERTICAL = 0xfd00b;
+	private static final int DIAGONAL = 0xf0ab;
+
 	private float y_intercept;
 	private float slope;
 	private int pointA, startX, startY;
 	private int pointB, endX, endY;
 	private boolean valid;
-	private boolean infinity_slope;
-	private boolean zero_slope;
 	private int length;
+	private int orientation;
 
 	public Line(int sp, int ep) {
 		setStartPoint(sp);
@@ -34,10 +37,11 @@ public class Line {
 	}
 
 	public void make() {
+		this.reset();
 		this.slope = solveSlope();
 		this.length = solveLength();
-		y_intercept = startY - slope*startX;
-		valid = true;
+		this.y_intercept = startY - slope*startX;
+		this.valid = true;
 	}
 
 	private float solveSlope() {
@@ -45,14 +49,15 @@ public class Line {
 		int dy = startY - endY;
 
 		if ( dx == 0 ) {
-			infinity_slope = true;
+			orientation = VERTICAL;
 			return Integer.MAX_VALUE;
 		} 
 		else  if ( dy == 0) {
-			zero_slope = true;
+			orientation = HORIZONTAL;
 			return 0;
-		}
+		} 
 		else {
+			orientation = DIAGONAL;
 			return  dy/(float)dx;
 		}
 
@@ -61,7 +66,7 @@ public class Line {
 	public void reset() {
 		pointA = pointB = startX = startY = endX = endY = 0;
 		slope = y_intercept = 0f;
-		valid = zero_slope = zero_slope = false;
+		valid =  false;
 
 	}
 
@@ -100,35 +105,32 @@ public class Line {
 	}
 
 	public Integer getPoint(int parameter) {
-		if (infinity_slope) {
-			//vertical line, x constant....
-			if (endY < startY) parameter = -parameter;
-			return startX*1000 + startY+parameter;
-			
-		} 
-		else if (zero_slope) {
-			//horizontal, y constant...
+
+		switch (orientation) {
+		case HORIZONTAL:
 			if (endX < startX) parameter = -parameter;
 			return (startX+parameter)*1000 + startY;
-		}
-		
-		else {
-			//add parameter to both x,y
+
+
+		case VERTICAL:
+			if (endY < startY) parameter = -parameter;
+			return startX*1000 + startY+parameter;
+
+
+		case DIAGONAL:
 			if (endX < startX) parameter = -parameter;
 			return (startX+parameter)*1000 + (int)getY(startX+parameter);
-		}
 
+		default:
+			return 0;
+		}
 	}
-	
+
 	private int solveLength() {
-		if (infinity_slope || zero_slope) {
-			return M.INTERVAL;
-		} else {
-			//diagonal
-			return (int)(1.414*M.INTERVAL);
-		}
-		
+		return (int)( endY - endX );
 	}
-
 
 }
+
+
+
