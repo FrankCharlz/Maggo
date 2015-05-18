@@ -51,6 +51,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	public String[] players = { "Mago", "AI" };
 	private boolean movingDot;
 	private int movingDotIndex;
+	private int parameter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,14 +115,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if (movingDot) {
-					dots[movingDotIndex].setX(dpx);
-					dots[movingDotIndex].setY(dpy);
-					dots[movingDotIndex].setRadius(Dot.RADIUS_BIG);
+					parameter+=4;
+					dots[movingDotIndex].setPosition(route.getPoint(parameter));
 
-					dpx += 7;//route.getSpeed(dpx);//speed depends on the route from 7 to 4.3
-					dpy = route.getY(dpx);
-
-					if (dpx >= route.getEndPoint()/1000) { 
+					if (dots[movingDotIndex].getX() >= route.getEndPoint()/1000) { 
 						dots[movingDotIndex].setRadius(Dot.RADIUS);
 						dots[movingDotIndex].setPosition(route.getEndPoint());
 						togglePlayer();
@@ -322,10 +319,11 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 
 	private void moveDotOverLine(Dot dot, Line path, int index) {
-		dpx = dot.getX();
-		dpy = dot.getY();
+		dot.setRadius(Dot.RADIUS_BIG);
 		movingDotIndex = index;
+		parameter = 0;
 		movingDot = true;
+		
 	}
 
 
