@@ -22,24 +22,26 @@ import android.widget.TextView;
 
 public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.Callback {
 
-	private static final int MENU_SETTINGS = 0;
-	public static final int PLAYER_AI = 1;
-	public static final int PLAYER_HUMAN = 0;
+	private static final int MENU_SETTINGS = 0x0f;
+	public static final int PLAYER_AI = 0x000000001;
+	public static final int PLAYER_HUMAN = 0x000000;
+	
 	private TextView tv;
 	private SurfaceView surface;
 	private SurfaceHolder holder;
 	private Thread t;
-	private Dot[] dots = new Dot[6];
 
 	//very important for storage
-	private int current_player=0;
-	private  ArrayList<Integer> occupiable, occupied, occupiedx, reachable;
-	private int[] wazi, zake, zangu;
+	private int current_player = PLAYER_HUMAN;
+	private Dot[] dots = new Dot[6];
+	private int sekos = 0, dots_iterator = 0;
+	private  ArrayList<Integer> occupiable = new ArrayList<Integer>(9);
+	private  ArrayList<Integer> occupied = new ArrayList<Integer>(3);
+	private  ArrayList<Integer> occupiedx = new ArrayList<Integer>(3);
+	private  ArrayList<Integer> reachable = new ArrayList<Integer>(3);//max reachable is 3
 
 	private Paint board_color, dot_1_color, dot_2_color, colors[], o_color, r_color;
 	public boolean touched, nichore;
-	private int sekos = 0;
-	private int dots_iterator = 0;
 	protected boolean moving = false;
 
 	//used for drawing moving dot...
@@ -68,16 +70,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 		t = new Thread(this);
 
-		occupiable = new ArrayList<Integer>(9);
-		occupied = new ArrayList<Integer>(3);
-		occupiedx = new ArrayList<Integer>(3);
-		reachable = new ArrayList<Integer>();
-
-		Logic.initOccupiableList(occupiable);
-
 		this.init();
-
-
 
 	}
 
@@ -99,26 +92,26 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if (moving) {
-
-					for (int x : reachable) {
-						c.drawCircle( x/1000, x%1000, Dot.RADIUS_BIG, r_color);
+					for (int pos : reachable) {
+						c.drawCircle( pos/1000, pos%1000, Dot.RADIUS_BIG, r_color);
 					}
 
 					for (Dot dot : dots) {
 						if(dot.isAt(currentDotId)) {
+							//skip currentDot in the main stream.. then draw a single . get only its color ;
 							Logic.drawDotMoving(c, dot, px, py);
 							continue;
-						} //skip currentDot in the main stream.. then draw a single . get only its color ;
+						} 
 						Logic.drawDot(c, dot);
 					}
 
 				}
 
 				if (movingDot) {
-					parameter+=4;
+					parameter+=18; //min 6
 					dots[movingDotIndex].setPosition(route.getPoint(parameter));
 
-					if (parameter >= M.INTERVAL) { 
+					if (parameter >= route.getLength()) { 
 						dots[movingDotIndex].setRadius(Dot.RADIUS);
 						dots[movingDotIndex].setPosition(route.getEndPoint());
 						togglePlayer();
@@ -333,9 +326,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		MenuItem item =  menu.add(Menu.NONE, MENU_SETTINGS, Menu.NONE, "Settings");
-		item.setIcon(getResources().getDrawable(R.drawable.ic_action_settings));
+		item.setIcon(getResources().getDrawable(R.drawable.ic_action_refresh));
 		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); 
 		return true;
 	}
@@ -345,12 +337,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		switch (item.getItemId()) {
 
 		case MENU_SETTINGS:
-			occupiable.clear();
-			Logic.initOccupiableList(occupiable);
-			occupied.clear();
-			occupiedx.clear();
-			moving = false;
-			sekos = 0;
+			resetGame();
 			return true;
 
 		default:
@@ -359,22 +346,21 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	}
 
 
+	private void resetGame() {
+		sekos = 0;
+		moving = touched = false;
+		occupiable.clear();
+		occupied.clear();
+		occupiedx.clear();
+		Logic.initOccupiableList(occupiable);
+
+	}
+
+
 	public void togglePlayer() {
 		current_player = (current_player == PLAYER_AI) ? PLAYER_HUMAN : PLAYER_AI;
 		//tv.setText(players[current_player]+"'s turn");
 	}
-
-	public Dot getDotById(int id) {
-		int i = 0;
-		for (Dot dot : dots) {
-			if (dot.isAt(id)) {
-				break;
-			}
-			i++;
-		}
-		return dots[i];
-	}
-
 
 	private void init() {
 		board_color = new Paint();
@@ -407,6 +393,8 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		colors[0] = dot_1_color;
 		colors[1] = dot_2_color;
 
+
+		Logic.initOccupiableList(occupiable);
 		route = new Line();
 
 	}

@@ -149,6 +149,7 @@ public class Logic {
 		int start = occupiedx.get(rn.nextInt(3));
 		int end = occupiable.get(rn.nextInt(3));
 	
+		path.reset();
 		path.setStartPoint(start);
 		path.setEndPoint(end);
 		path.make(); 

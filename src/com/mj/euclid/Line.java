@@ -37,7 +37,6 @@ public class Line {
 	}
 
 	public void make() {
-		this.reset();
 		this.slope = solveSlope();
 		this.length = solveLength();
 		this.y_intercept = startY - slope*startX;
@@ -108,17 +107,17 @@ public class Line {
 
 		switch (orientation) {
 		case HORIZONTAL:
-			if (endX < startX) parameter = -parameter;
+			if (endX < startX) parameter = -1*parameter;
 			return (startX+parameter)*1000 + startY;
 
 
 		case VERTICAL:
-			if (endY < startY) parameter = -parameter;
+			if (endY < startY) parameter = -1*parameter;
 			return startX*1000 + startY+parameter;
 
 
 		case DIAGONAL:
-			if (endX < startX) parameter = -parameter;
+			if (endX < startX) parameter = -1*parameter;
 			return (startX+parameter)*1000 + (int)getY(startX+parameter);
 
 		default:
@@ -127,10 +126,17 @@ public class Line {
 	}
 
 	private int solveLength() {
-		return (int)( endY - endX );
+		if( orientation == DIAGONAL)
+			return M.INTERVAL;
+		else
+			return (int)(1.4142*M.INTERVAL);
+	}
+
+	public int getLength() {
+		return length;
 	}
 
 }
 
 
-
+  
