@@ -42,7 +42,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	private Paint board_color, dot_1_color, dot_2_color, colors[], o_color, r_color;
 	public boolean touched, nichore;
-	protected boolean moving = false;
+	protected boolean moving = false, game_over = false;
 
 	//used for drawing moving dot...
 	private float dpx, dpy;
@@ -54,6 +54,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 	private boolean movingDot;
 	private int movingDotIndex;
 	private int parameter;
+	private boolean somebodyWon;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +109,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 				}
 
 				if (movingDot) {
-					parameter+=18; //min 6
+					parameter += route.getSpeed(parameter);
 					dots[movingDotIndex].setPosition(route.getPoint(parameter));
 
 					if (parameter >= route.getLength()) { 
@@ -209,6 +210,10 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 						tv.setText("That is not yours");
 					}
 				}
+				
+				if (game_over) {
+					tv.setText("GAME OVER");
+				}
 
 				//end of case motion DOWN
 				break;
@@ -249,11 +254,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 						//let the AI play
 						togglePlayer();
 						AIplay();
-					}
-
-					//takes three dots tests if win.....
-					if( Logic.checkWinner(occupied, occupiedx, current_player)) {
-						tv.setText(players[current_player]+" wins.");
 					}
 
 				}
@@ -358,6 +358,13 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 
 	public void togglePlayer() {
+		if (sekos == 6) {
+			somebodyWon = Logic.checkWinner(occupied, occupiedx, current_player);
+			if(somebodyWon) {
+				board_color.setColor(colors[current_player].getColor());
+				M.logger(players[current_player]+" won");
+			}
+		}
 		current_player = (current_player == PLAYER_AI) ? PLAYER_HUMAN : PLAYER_AI;
 		//tv.setText(players[current_player]+"'s turn");
 	}
