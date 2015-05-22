@@ -5,8 +5,8 @@ import android.graphics.Paint;
 public class Dot {
 
 	//Constants
-	public static final float RADIUS_BIG = 38f;
-	public static final float RADIUS = 28f;
+	public static final float RADIUS_BIG = 40f;
+	public static final float RADIUS = 30f;
 	public static final float SPEED = 3;
 	
 	private int sekoNumber;

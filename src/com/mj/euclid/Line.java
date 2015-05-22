@@ -99,8 +99,8 @@ public class Line {
 		return pointA+" to "+pointB;
 	}
 
-	public float getSpeed(int parameter) {
-		return (float) (1.84*Math.exp((parameter)/(length)));
+	public double getSpeed(int parameter) {
+		return 12 + 6*Math.exp(parameter/length);
 	}
 
 	public Integer getPoint(int parameter) {
@@ -127,9 +127,9 @@ public class Line {
 
 	private int solveLength() {
 		if( orientation == DIAGONAL)
-			return M.INTERVAL;
-		else
 			return (int)(1.4142*M.INTERVAL);
+		else
+			return M.INTERVAL;
 	}
 
 	public int getLength() {

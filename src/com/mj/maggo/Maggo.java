@@ -115,7 +115,6 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 					if (parameter >= route.getLength()) { 
 						dots[movingDotIndex].setRadius(Dot.RADIUS);
 						dots[movingDotIndex].setPosition(route.getEndPoint());
-						togglePlayer();
 						M.logger("Was moving dot index : "+ movingDotIndex);
 						M.logger("Done pretty moving");
 						movingDot = false;
@@ -312,6 +311,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		occupiable.add(route.getStartPoint());
 
 		M.logger("AI has finished playing");
+		togglePlayer();
 	}
 
 
@@ -348,7 +348,7 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 
 	private void resetGame() {
 		sekos = 0;
-		moving = touched = false;
+		moving = touched = game_over = false;
 		occupiable.clear();
 		occupied.clear();
 		occupiedx.clear();
@@ -363,10 +363,11 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 			if(somebodyWon) {
 				board_color.setColor(colors[current_player].getColor());
 				M.logger(players[current_player]+" won");
+				game_over = true;
 			}
 		}
 		current_player = (current_player == PLAYER_AI) ? PLAYER_HUMAN : PLAYER_AI;
-		//tv.setText(players[current_player]+"'s turn");
+		tv.setText(players[current_player]+"'s turn");
 	}
 
 	private void init() {
@@ -377,22 +378,22 @@ public class Maggo extends ActionBarActivity implements Runnable, SurfaceHolder.
 		board_color.setStrokeWidth(2);
 
 		dot_1_color = new Paint();
-		dot_1_color.setARGB(180, 132, 190, 99);
+		dot_1_color.setARGB(240, 132, 190, 99);
 		dot_1_color.setStyle(Style.FILL_AND_STROKE);
 		dot_1_color.setStrokeWidth(1);
 
 		dot_2_color = new Paint();
-		dot_2_color.setARGB(180, 12, 222, 229);
+		dot_2_color.setARGB(240, 12, 222, 229);
 		dot_2_color.setStyle(Style.FILL_AND_STROKE);
 		dot_2_color.setStrokeWidth(1);
 
 		o_color = new Paint();
-		o_color.setARGB(20, 212, 22, 29);
+		o_color.setARGB(20, 22, 22, 29);
 		o_color.setStyle(Style.FILL_AND_STROKE);
 		o_color.setStrokeWidth(1);
 
 		r_color = new Paint();
-		r_color.setARGB(30, 22, 222, 229);
+		r_color.setARGB(30, 212, 222, 229);
 		r_color.setStyle(Style.FILL_AND_STROKE);
 		r_color.setStrokeWidth(1);
 
