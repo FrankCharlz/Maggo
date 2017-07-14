@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Surface
 		occupiable.remove(route.getEndPoint());
 		occupiable.add(route.getStartPoint());
 
-		Board.logger("AI has finished playing");
+		Board.logger("AI has finished playing bitch!");
 		togglePlayer();
 	}
 
